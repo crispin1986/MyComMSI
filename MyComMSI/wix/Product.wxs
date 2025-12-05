@@ -1,0 +1,36 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
+  <Product Id="*" Name="MyComMSI" Language="1033" Version="1.0.0.0" Manufacturer="Crispin" UpgradeCode="PUT-GUID-HERE">
+    <Package InstallerVersion="500" Compressed="yes" InstallScope="perMachine" />
+
+    <MediaTemplate />
+
+    <Directory Id="TARGETDIR" Name="SourceDir">
+      <Directory Id="ProgramFilesFolder">
+        <Directory Id="INSTALLFOLDER" Name="MyComMSI" />
+      </Directory>
+    </Directory>
+
+    <Component Id="MyComMSIComponent" Guid="{148CAAA5-334D-48A9-854F-96ECCB4D806B}">
+      <File Id="MyComMSIDll" Source="bin\Debug\MyComMSI.dll" KeyPath="yes" />
+
+      <!-- COM Registration -->
+      <Class Id="{7BD20046-DF8C-44A6-AF72-3D39F2D3E8A8}" 
+             Context="InprocServer32" 
+             Description="My COM Component"
+             ThreadingModel="Both">
+        <ProgId Id="MyComMSI.MyComComponent" />
+      </Class>
+
+      <!-- Optional Type Library Registration -->
+      <TypeLib Id="{EAA4976A-45C3-4BC5-BC0B-E474F4C3C83F}" 
+               Language="0" MajorVersion="1" MinorVersion="0" 
+               Win32File="bin\Debug\MyComMSI.dll" />
+    </Component>
+
+    <Feature Id="MainFeature" Title="MyComMSI" Level="1">
+      <ComponentRef Id="MyComMSIComponent" />
+    </Feature>
+
+  </Product>
+</Wix>
