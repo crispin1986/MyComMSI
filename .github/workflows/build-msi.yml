@@ -17,7 +17,9 @@ jobs:
       run: choco upgrade wixtoolset -y
 
     - name: Build .NET Framework 4.8.1 project
-      run: msbuild "MyComMSI/MyComMSI.csproj" /p:Configuration=Release
+      run: |
+        $msbuild = & "C:\Program Files (x86)\Microsoft Visual Studio\Installer\vswhere.exe" -latest -products * -requires Microsoft.Component.MSBuild -find MSBuild\**\Bin\MSBuild.exe
+        & $msbuild "MyComMSI/MyComMSI.csproj" /p:Configuration=Release
 
     - name: Prepare Output folder
       run: mkdir Output
