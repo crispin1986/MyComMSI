@@ -30,7 +30,7 @@ jobs:
     - name: Compile WiX (candle)
       run: |
         mkdir build
-        candle.exe wix\Product.wxs -o build\Product.wixobj
+        candle.exe MyComMSI\wix\Product.wxs -o build\Product.wixobj
 
     - name: Link WiX (light)
       run: light.exe wix\Product.wixobj -o build\MyComMSI.msi
