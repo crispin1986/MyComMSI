@@ -1,36 +1,68 @@
 ﻿<?xml version="1.0" encoding="UTF-8"?>
 <Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
-  <Product Id="*" Name="MyComMSI" Language="1033" Version="1.0.0.0" Manufacturer="Crispin" UpgradeCode="PUT-GUID-HERE">
-    <Package InstallerVersion="500" Compressed="yes" InstallScope="perMachine" />
+	<Product Id="*" Name="MyComMSI" Language="1033" Version="1.0.0.0" Manufacturer="Crispin" UpgradeCode="d1f4e8a2-7c6b-4f9c-bd32-123456789abc">
+		<Package InstallerVersion="500" Compressed="yes" InstallScope="perMachine" Platform="x64" />
 
-    <MediaTemplate />
+		<MediaTemplate EmbedCab="yes" />
 
-    <Directory Id="TARGETDIR" Name="SourceDir">
-      <Directory Id="ProgramFilesFolder">
-        <Directory Id="INSTALLFOLDER" Name="MyComMSI" />
-      </Directory>
-    </Directory>
+		<Feature Id="MainFeature" Title="MyComMSI Feature" Level="1">
+			<ComponentRef Id="MyComDLLComponent" />
+		</Feature>
 
-    <Component Id="MyComMSIComponent" Guid="{148CAAA5-334D-48A9-854F-96ECCB4D806B}">
-      <File Id="MyComMSIDll" Source="bin\Debug\MyComMSI.dll" KeyPath="yes" />
+		<Directory Id="TARGETDIR" Name="SourceDir">
+			<Directory Id="ProgramFiles64Folder">
+				<Directory Id="INSTALLFOLDER" Name="MyComMSI">
+					<Component Id="MyComDLLComponent" Guid="a3f8b2c1-4e6d-4f1a-91b8-56789abcd234" Win64="yes">
+						<File Id="MyComDLLFile" Source="D:\Output\MyComMSI.dll" KeyPath="yes" />
+					</Component>
+				</Directory>
+			</Directory>
+		</Directory>
 
-      <!-- COM Registration -->
-      <Class Id="{7BD20046-DF8C-44A6-AF72-3D39F2D3E8A8}" 
-             Context="InprocServer32" 
-             Description="My COM Component"
-             ThreadingModel="Both">
-        <ProgId Id="MyComMSI.MyComComponent" />
-      </Class>
+		<!-- Immediate action: sets the DLL path -->
+		<CustomAction Id="SetRegisterComData"
+					  Property="CustomActionData"
+					  Value="[INSTALLFOLDER]MyComMSI.dll" />
 
-      <!-- Optional Type Library Registration -->
-      <TypeLib Id="{EAA4976A-45C3-4BC5-BC0B-E474F4C3C83F}" 
-               Language="0" MajorVersion="1" MinorVersion="0" 
-               Win32File="bin\Debug\MyComMSI.dll" />
-    </Component>
+		<CustomAction Id="SetUnregisterComData"
+					  Property="CustomActionData"
+					  Value="[INSTALLFOLDER]MyComMSI.dll" />
 
-    <Feature Id="MainFeature" Title="MyComMSI" Level="1">
-      <ComponentRef Id="MyComMSIComponent" />
-    </Feature>
+		<!-- Debug logging: log CustomActionData, not RegisterCom -->
+		<CustomAction Id="LogRegisterComData"
+					  Execute="immediate"
+					  Script="vbscript"
+					  Return="ignore">
+			<![CDATA[
+  Session.Log("DEBUG: CustomActionData = " & Session.Property("CustomActionData"))
+  ]]>
+		</CustomAction>
 
-  </Product>
+		<!-- Register COM during install -->
+		<CustomAction Id="RegisterCom"
+					  Directory="TARGETDIR"
+					  Execute="deferred"
+					  Impersonate="no"
+					  ExeCommand='"C:\Windows\Microsoft.NET\Framework64\v4.0.30319\regasm.exe" "[CustomActionData]" /codebase /tlb /nologo'
+					  Return="check" />
+
+		<!-- Unregister COM during uninstall -->
+		<CustomAction Id="UnregisterCom"
+					  Directory="TARGETDIR"
+					  Execute="deferred"
+					  Impersonate="no"
+					  ExeCommand='"C:\Windows\Microsoft.NET\Framework64\v4.0.30319\regasm.exe" "[CustomActionData]" /unregister /nologo'
+					  Return="ignore" />
+
+		<!-- Schedule the custom actions -->
+		<InstallExecuteSequence>
+			<Custom Action="SetRegisterComData" Before="RegisterCom">NOT Installed</Custom>
+			<Custom Action="LogRegisterComData" After="SetRegisterComData">NOT Installed</Custom>
+			<Custom Action="RegisterCom" After="InstallFiles">NOT Installed</Custom>
+
+			<Custom Action="SetUnregisterComData" Before="UnregisterCom">REMOVE="ALL"</Custom>
+			<Custom Action="UnregisterCom" Before="RemoveFiles">REMOVE="ALL"</Custom>
+		</InstallExecuteSequence>
+
+	</Product>
 </Wix>
