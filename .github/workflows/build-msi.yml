@@ -1,0 +1,38 @@
+name: Build MSI Installer
+
+on:
+  push:
+    branches: [ "master" ]
+  pull_request:
+
+jobs:
+  build-msi:
+    runs-on: windows-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Install WiX Toolset 3.x
+      run: choco install wixtoolset --version=3.14.0 -y
+
+    - name: Build .NET Framework 4.8.1 project
+      run: msbuild "MyComMSI/MyComMSI.csproj" /p:Configuration=Release
+
+    - name: Prepare Output folder
+      run: mkdir Output
+
+    - name: Copy DLL for WiX
+      run: copy "MyComMSI\bin\Release\MyComMSI.dll" "Output\MyComMSI.dll"
+
+    - name: Compile WiX (candle)
+      run: candle.exe Product.wxs -o build\Product.wixobj
+
+    - name: Link WiX (light)
+      run: light.exe build\Product.wixobj -o build\MyComMSI.msi
+
+    - name: Upload MSI artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: MyComMSI
+        path: build/MyComMSI.msi
