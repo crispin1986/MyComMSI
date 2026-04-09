@@ -13,7 +13,7 @@
 			<Directory Id="ProgramFiles64Folder">
 				<Directory Id="INSTALLFOLDER" Name="MyComMSI">
 					<Component Id="MyComDLLComponent" Guid="a3f8b2c1-4e6d-4f1a-91b8-56789abcd234" Win64="yes">
-						<File Id="MyComDLLFile" Source="D:\Output\MyComMSI.dll" KeyPath="yes" />
+						<File Id="MyComDLLFile" Source="Output\MyComMSI.dll" KeyPath="yes" />
 					</Component>
 				</Directory>
 			</Directory>
