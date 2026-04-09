@@ -33,7 +33,7 @@ jobs:
         candle.exe MyComMSI\wix\Product.wxs -o build\Product.wixobj
 
     - name: Link WiX (light)
-      run: light.exe wix\Product.wixobj -o build\MyComMSI.msi
+      run: light.exe build\Product.wixobj -o build\MyComMSI.msi
 
     - name: Upload MSI artifact
       uses: actions/upload-artifact@v4
