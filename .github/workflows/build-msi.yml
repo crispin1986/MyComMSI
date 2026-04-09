@@ -13,8 +13,8 @@ jobs:
     - name: Checkout repository
       uses: actions/checkout@v4
 
-    - name: Install WiX Toolset 3.x
-      run: choco install wixtoolset --version=3.14.0 -y
+    - name: Ensure WiX Toolset is installed
+      run: choco upgrade wixtoolset -y
 
     - name: Build .NET Framework 4.8.1 project
       run: msbuild "MyComMSI/MyComMSI.csproj" /p:Configuration=Release
@@ -26,7 +26,9 @@ jobs:
       run: copy "MyComMSI\bin\Release\MyComMSI.dll" "Output\MyComMSI.dll"
 
     - name: Compile WiX (candle)
-      run: candle.exe Product.wxs -o build\Product.wixobj
+      run: |
+        mkdir build
+        candle.exe Product.wxs -o build\Product.wixobj
 
     - name: Link WiX (light)
       run: light.exe build\Product.wixobj -o build\MyComMSI.msi
